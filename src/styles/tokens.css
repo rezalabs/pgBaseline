@@ -1,0 +1,103 @@
+/* Design tokens. Values are chosen for the two themes, not inverted. */
+/* The palette follows a database operations console: graphite neutrals with a
+   cool cast, a teal signal accent, and green, amber, and vermilion status hues. */
+
+:root {
+  --font-display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --font-body: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-body: 1.55;
+  --leading-code: 1.7;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --radius: 2px;
+
+  --dur-fast: 120ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --page-max: 92rem;
+  --gutter: clamp(1rem, 3.2vw, 2.5rem);
+
+  --color-paper: #e9f1f1;
+  --color-surface: #f6fbfb;
+  --color-surface-alt: #dae7e7;
+  --color-ink: #1b2629;
+  --color-ink-soft: #4d5d60;
+  --color-ink-faint: #576568;
+  --color-rule: #c3cecf;
+  --color-rule-strong: #8e9fa0;
+  --color-control: #5f7374;
+  --color-accent: #006465;
+  --color-accent-strong: #004e50;
+  --color-accent-soft: #c0f1f2;
+  --color-accent-ink: #ffffff;
+  --color-ok: #2b652f;
+  --color-ok-soft: #d7eed7;
+  --color-warn: #835400;
+  --color-warn-soft: #fce5bd;
+  --color-danger: #9e1d19;
+  --color-danger-soft: #fedbd5;
+  --color-focus: #006465;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --color-paper: #0e171a;
+  --color-surface: #151f22;
+  --color-surface-alt: #1c282b;
+  --color-ink: #dee9e9;
+  --color-ink-soft: #a0aeb0;
+  --color-ink-faint: #869697;
+  --color-rule: #2c393c;
+  --color-rule-strong: #48595d;
+  --color-control: #687e80;
+  --color-accent: #3bcfcf;
+  --color-accent-strong: #65e1e1;
+  --color-accent-soft: #023536;
+  --color-accent-ink: #0e171a;
+  --color-ok: #87cb89;
+  --color-ok-soft: #1c311d;
+  --color-warn: #eebb5e;
+  --color-warn-soft: #3a2d10;
+  --color-danger: #f4877a;
+  --color-danger-soft: #3c1e1a;
+  --color-focus: #65e1e1;
+
+  color-scheme: dark;
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-ink-soft: #334145;
+    --color-ink-faint: #465457;
+    --color-rule: #8a9697;
+    --color-control: #3d4c4d;
+  }
+  :root[data-theme='dark'] {
+    --color-ink-soft: #bfcecf;
+    --color-ink-faint: #a9b9bb;
+    --color-rule: #556569;
+    --color-control: #91a2a4;
+  }
+}

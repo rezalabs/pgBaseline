@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check-tag:
+    name: Check tag
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate tag, branch, changelog, and manifest version
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${TAG##*/}"
+          version="${version#v}"
+          if ! printf '%s\n' "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(alpha|beta|rc)\.(0|[1-9][0-9]*))?$'; then
+            echo "::error::Tag $TAG is not vX.Y.Z or vX.Y.Z-(alpha|beta|rc).N"
+            exit 1
+          fi
+          tag_type="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" --jq .object.type)"
+          if [ "$tag_type" != "tag" ]; then
+            echo "::error::Tag $TAG is lightweight; release tags are annotated"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::Tag $TAG points to a commit that is not on main"
+            exit 1
+          fi
+          if ! grep -Fq "## [$version] - " CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no dated section for $version"
+            exit 1
+          fi
+          manifest_version="$(jq -r .version package.json)"
+          if [ "$manifest_version" != "$version" ]; then
+            echo "::error::package.json version $manifest_version does not match tag $TAG"
+            exit 1
+          fi
+          prerelease=false
+          case "$version" in *-*) prerelease=true ;; esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+
+  ci:
+    name: CI
+    needs: check-tag
+    uses: ./.github/workflows/ci.yml # zizmor: ignore[self-repository] actionlint cannot parse $/ yet (rhysd/actionlint#711)
+    permissions:
+      contents: read
+      actions: read # passed to the CI workflow's zizmor job
+
+  github-release:
+    name: GitHub release
+    needs: [check-tag, ci]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write # creates the release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Extract release notes
+        env:
+          VERSION: ${{ needs.check-tag.outputs.version }}
+        run: |
+          awk -v heading="## [$VERSION]" '
+            index($0, heading) == 1 { found = 1; next }
+            found && (/^## \[/ || /^\[[^]]+\]: /) { exit }
+            found { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/release-notes.md"; then
+            echo "::error::The changelog section for $VERSION is empty"
+            exit 1
+          fi
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          PRERELEASE: ${{ needs.check-tag.outputs.prerelease }}
+        run: |
+          flags=(--verify-tag --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md")
+          if [ "$PRERELEASE" = "true" ]; then
+            flags+=(--prerelease --latest=false)
+          fi
+          gh release create "$TAG" "${flags[@]}"

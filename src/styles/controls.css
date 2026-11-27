@@ -1,0 +1,167 @@
+/* Shared control primitives. Components add layout around them. */
+
+.control {
+  inline-size: 100%;
+  min-block-size: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-control);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.3;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease);
+}
+
+.control::placeholder {
+  color: var(--color-ink-faint);
+  font-family: var(--font-body);
+}
+
+.control:hover {
+  border-color: var(--color-ink-soft);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-color: var(--color-accent);
+}
+
+.control[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.control-wrap {
+  position: relative;
+}
+
+.control-wrap select.control {
+  appearance: none;
+  padding-inline-end: 2.5rem;
+  cursor: pointer;
+}
+
+.control-wrap__chevron {
+  position: absolute;
+  inset-inline-end: var(--space-3);
+  inset-block-start: 50%;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-ink-soft);
+}
+
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  border: 1px solid var(--color-control);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.segmented label {
+  position: relative;
+  display: block;
+  min-inline-size: 0;
+  cursor: pointer;
+}
+
+.segmented input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 2.75rem;
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-ink);
+  border-inline-end: 1px solid var(--color-rule);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.segmented label:last-child span {
+  border-inline-end: 0;
+}
+
+.segmented label:hover span {
+  background: var(--color-surface-alt);
+}
+
+.segmented input:checked + span {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-weight: 600;
+}
+
+.segmented label:hover input:checked + span {
+  background: var(--color-accent-strong);
+  color: var(--color-accent-ink);
+}
+
+.segmented input:focus-visible + span {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
+.segmented input:checked:focus-visible + span {
+  outline-color: var(--color-accent-ink);
+}
+
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-ink-soft);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.link-button:hover {
+  color: var(--color-ink);
+}
+
+@media (forced-colors: active) {
+  .control,
+  .segmented {
+    border: 1px solid ButtonText;
+  }
+
+  .segmented input:checked + span {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  .segmented input:focus-visible + span,
+  .segmented input:checked:focus-visible + span {
+    outline: 2px solid Highlight;
+    outline-offset: -5px;
+  }
+}

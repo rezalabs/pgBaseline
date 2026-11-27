@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>%SITE_TITLE%</title>
+    <meta name="description" content="%SITE_DESCRIPTION%" />
+    <meta name="color-scheme" content="light dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="%SITE_TITLE%" />
+    <meta property="og:description" content="%SITE_DESCRIPTION%" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#e9f1f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e171a" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <script>
+      // Set the theme before first paint so the page never flashes the wrong palette.
+      (() => {
+        try {
+          const stored = localStorage.getItem('pgbaseline-theme');
+          const theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript>
+      <p style="max-width: 40rem; margin: 4rem auto; padding: 0 1.5rem; font-family: sans-serif">
+        pgBaseline generates the configuration in your browser, so JavaScript is required. The
+        settings themselves are plain PostgreSQL parameters and can be applied from
+        <code>postgresql.conf</code> or with <code>ALTER SYSTEM</code>.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
